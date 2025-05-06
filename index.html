@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <title>Virtual Shopping AI Assistant</title>
+    <script src="https://kit.fontawesome.com/a2d9c58b04.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js"></script>
+    <style>
+        *{box-sizing:border-box;margin:0;padding:0}body{font-family:'Segoe UI',system-ui;background:#f5f5f5;color:#222}.section{display:none;padding:2rem}.section.active{display:block}nav{width:100%;background:#0a2342;color:#fff;display:flex;align-items:center;padding:.75rem 1.5rem;position:sticky;top:0;z-index:100;box-shadow:0 2px 6px rgba(0,0,0,.3)}nav .logo{font-size:1.5rem;font-weight:700;margin-right:3rem}nav ul{list-style:none;display:flex;gap:1rem}nav ul li{cursor:pointer;padding:.5rem 1rem;border-radius:.25rem;transition:all .3s ease;position:relative}nav ul li.active,nav ul li:hover{background:rgba(255,255,255,.1)}nav ul li::after{content:'';position:absolute;bottom:-3px;left:50%;width:0;height:2px;background:#fff;transition:all .3s ease;transform:translateX(-50%)}nav ul li:hover::after,nav ul li.active::after{width:60%}
+        
+        /* Chat Section */
+        .chat-container{max-width:1100px;background:#fff;border-radius:1rem;box-shadow:0 4px 20px rgba(0,0,0,.1);margin:2rem auto 0;transform:translateY(20px);opacity:0;animation:fadeInUp .5s ease .3s forwards}.chat-header{background:#000;padding:1rem;color:#fff;display:flex;justify-content:space-between;align-items:center;border-top-left-radius:1rem;border-top-right-radius:1rem}.chat-header h2{font-size:2rem}.chat-body{height:60vh;overflow-y:auto;background:#fafafa;padding:1rem}.message-container{display:flex;flex-direction:column;gap:1rem}.user-message,.bot-message{padding:1rem;border-radius:1rem;max-width:85%;box-shadow:0 2px 6px rgba(0,0,0,.05);transform:scale(.95);opacity:0;animation:messageIn .3s ease forwards}.user-message{align-self:flex-end;background:#222;color:#fff;animation-delay:.1s}.bot-message{align-self:flex-start;background:#fff;color:#222}.audio-controls{position:absolute;right:10px;bottom:10px}.input-container{padding:1.5rem;border-top:1px solid #eee;display:flex;gap:1rem;align-items:center;border-bottom-left-radius:1rem;border-bottom-right-radius:1rem}.form-control{flex:1;padding:1rem 1.5rem;border:1px solid #ccc;border-radius:50px;font-size:1.1rem;transition:all .3s ease}.form-control:focus{border-color:#2a5c8d;box-shadow:0 0 0 3px rgba(42,92,141,.2);outline:none}#micBtn{background:#2a5c8d;color:#fff;width:50px;height:50px;border-radius:50%;display:flex;justify-content:center;align-items:center;border:none;cursor:pointer;font-size:1.5rem;transition:all .3s ease}#micBtn:hover{background:#1a4a7d;transform:scale(1.05)}#micBtn.listening{background:#e74c3c;animation:pulse 1.5s infinite}#sendBtn{padding:0 1.5rem;height:50px;background:#0a2342;color:#fff;border:none;border-radius:50px;font-size:1.1rem;cursor:pointer;transition:all .3s ease}#sendBtn:hover{background:#062033}#stopBtn{padding:.5rem 1rem;background:#e74c3c;color:#fff;border:none;border-radius:4px;cursor:pointer;transition:all .3s ease}#stopBtn:hover{background:#c0392b}.bot-message button{background:#2a5c8d;color:#fff;border:none;border-radius:50%;width:40px;height:40px;font-size:1.2rem;cursor:pointer;margin-top:10px;transition:all .3s ease}.bot-message button:hover{background:#1a4a7d;transform:scale(1.05)}
+        
+        /* Search Section */
+        #searchSection{max-width:1200px;margin:0 auto;padding:3rem 2rem}#searchSection h3{font-size:2.5rem;text-align:center;margin-bottom:2rem;color:#ffffff}.search-container{display:flex;gap:1rem;margin-bottom:2rem;position:relative}#searchInput{flex:1;padding:1.25rem 1.25rem 1.25rem 3.5rem;font-size:1.25rem;border:2px solid #ddd;border-radius:50px;transition:all .3s ease}#searchInput:focus{border-color:#2a5c8d;box-shadow:0 0 0 4px rgba(42,92,141,.2);outline:none}#searchBtn{padding:0 2.5rem;font-size:1.25rem;background:#0a2342;color:#fff;border:none;border-radius:50px;cursor:pointer;transition:all .3s ease}#searchBtn:hover{background:#062033}#searchMicBtn{position:absolute;left:15px;top:50%;transform:translateY(-50%);background:#2a5c8d;color:#fff;width:40px;height:40px;border-radius:50%;display:flex;justify-content:center;align-items:center;border:none;cursor:pointer;font-size:1.25rem;transition:all .3s ease;z-index:2}#searchMicBtn:hover{background:#1a4a7d}#searchMicBtn.listening{background:#e74c3c;animation:pulse 1.5s infinite}#searchResults{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:1.5rem;margin-top:2rem}.product{background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 5px 15px rgba(0,0,0,.1);transition:all .3s ease}.product:hover{transform:translateY(-5px);box-shadow:0 10px 25px rgba(0,0,0,.15)}.product-info{padding:1.5rem}.product-name{font-size:1.25rem;font-weight:600;margin-bottom:.5rem;color:#0a2342}.product-price{font-size:1.5rem;font-weight:700;color:#2a5c8d;margin-bottom:1rem}.product-btn{width:100%;padding:.75rem;background:#0a2342;color:#fff;border:none;border-radius:6px;font-size:1rem;cursor:pointer;transition:all .3s ease}.product-btn:hover{background:#062033}
+        
+        /* OCR Section */
+        #ocrSection{max-width:1100px;margin:0 auto;padding:3rem 2rem}#ocrSection h3{font-size:2.5rem;text-align:center;margin-bottom:2rem;color:#ffffff}.ocr-container{display:flex;flex-direction:column;align-items:center;gap:1.5rem}#ocrFile{display:none}.file-upload-wrapper{position:relative;width:100%;max-width:500px;height:300px;border:2px dashed #ccc;border-radius:12px;display:flex;flex-direction:column;justify-content:center;align-items:center;cursor:pointer;transition:all .3s ease;background:#f9f9f9;overflow:hidden}.file-upload-wrapper:hover{border-color:#2a5c8d;background:#f0f7ff}.file-upload-label{text-align:center;padding:1rem}.file-upload-label i{font-size:3rem;color:#2a5c8d;margin-bottom:1rem}.file-upload-label p{font-size:1.1rem;color:#666;margin-bottom:.5rem}.file-upload-label span{font-size:.9rem;color:#999}#imagePreview{max-width:100%;max-height:100%;display:none}.ocr-progress{width:100%;max-width:500px;background:#eee;border-radius:8px;height:20px;margin-top:1rem;overflow:hidden;display:none}.ocr-progress-bar{height:100%;background:#2a5c8d;width:0;transition:width .3s ease}#doOCR{padding:1rem 2.5rem;font-size:1.1rem;background:#0a2342;color:#fff;border:none;border-radius:50px;cursor:pointer;transition:all .3s ease;position:relative}#doOCR:hover{background:#062033}#doOCR.loading{background:#666;pointer-events:none}#doOCR.loading::after{content:'';position:absolute;top:50%;left:50%;width:20px;height:20px;border:3px solid rgba(255,255,255,.3);border-top-color:#fff;animation:spin 1s ease infinite;transform:translate(-50%,-50%)}#ocrResult{white-space:pre-wrap;background:#fff;padding:1.5rem;border-radius:12px;box-shadow:0 2px 6px rgba(0,0,0,.05);width:100%;max-width:800px;margin-top:1.5rem;border:1px solid #eee;min-height:100px;font-family:monospace}.ocr-actions{display:flex;gap:1rem;margin-top:1rem} .ocr-actions button{padding:.5rem 1rem;background:#0a2342;color:#fff;border:none;border-radius:4px;cursor:pointer;transition:all .3s ease} .ocr-actions button:hover{background:#062033}
+        
+        /* Cart Section */
+        #cartSection{max-width:800px;margin:0 auto;padding:3rem 2rem}#cartSection h3{font-size:2.5rem;text-align:center;margin-bottom:2rem;color:#ffffff}#cartItems{background:#fff;border-radius:12px;padding:1.5rem;box-shadow:0 5px 15px rgba(0,0,0,.1);margin-bottom:2rem}.cart-item{display:flex;justify-content:space-between;align-items:center;padding:1rem 0;border-bottom:1px solid #eee}.cart-item:last-child{border-bottom:none}.cart-total{font-size:1.5rem;font-weight:700;text-align:right;margin-top:1rem;color:#ffffff}#checkoutBtn{width:100%;padding:1rem;font-size:1.1rem;background:#0a2342;color:#fff;border:none;border-radius:6px;cursor:pointer;transition:all .3s ease}#checkoutBtn:hover{background:#062033}
+        
+        /* Payment Section */
+        #paymentSection{max-width:600px;margin:0 auto;padding:3rem 2rem}#paymentSection h3{font-size:2.5rem;text-align:center;margin-bottom:2rem;color:#ffffff}#paymentForm{background:#fff;padding:2rem;border-radius:12px;box-shadow:0 5px 15px rgba(0,0,0,.1)}#paymentForm input{width:100%;margin-bottom:1rem;padding:1rem;border:1px solid #ccc;border-radius:8px;font-size:1rem;transition:all .3s ease}#paymentForm input:focus{border-color:#2a5c8d;box-shadow:0 0 0 3px rgba(42,92,141,.2);outline:none}#paymentForm button{width:100%;padding:1rem;font-size:1.1rem;background:#0a2342;color:#fff;border:none;border-radius:6px;cursor:pointer;transition:all .3s ease;margin-top:1rem}#paymentForm button:hover{background:#062033}
+        
+        @keyframes fadeInUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(231,76,60,.4)}70%{box-shadow:0 0 0 12px rgba(231,76,60,0)}100%{box-shadow:0 0 0 0 rgba(231,76,60,0)}}@keyframes ripple{to{transform:scale(4);opacity:0}}@keyframes messageIn{to{transform:scale(1);opacity:1}}@keyframes spin{to{transform:translate(-50%,-50%) rotate(360deg)}}
+        .nav-btn {
+            background: linear-gradient(45deg, #007bff, #00d4ff);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            padding: 0.75rem 2rem;
+            font-size: 1.25rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 178, 255, 0.3);
+        }
+        .nav-btn:hover {
+            background: linear-gradient(45deg, #00d4ff, #007bff);
+            color: #fff;
+            box-shadow: 0 6px 20px rgba(0, 178, 255, 0.6);
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body style="background: linear-gradient(135deg, #000000, #001f3f); color: #00bfff;">
+    <nav>
+        <div class="logo">🛒 VirtualShop AI</div>
+        <ul>
+            <li data-target="landingSection" class="active">Home</li>
+            <li data-target="chatSection">Chat</li>
+            <li data-target="searchSection">Search</li>
+            <li data-target="ocrSection">OCR</li>
+            <li data-target="cartSection">Cart</li>
+            <li data-target="paymentSection">Payment</li>
+        </ul>
+    </nav>
+
+    <section id="landingSection" style="position: relative; min-height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 2rem;">
+        <div class="hero-content" style="max-width: 700px;">
+            <h1 style="font-size: 3.5rem; font-weight: 900; margin-bottom: 1rem; color: #00bfff; text-shadow: 0 0 10px #00bfff;">Welcome to <span style="color: #ffffff;">VirtualShop AI</span></h1>
+            <p style="font-size: 1.5rem; font-weight: 500; margin-bottom: 3rem; color: #ffffff;">Your smart assistant for a seamless virtual shopping experience.</p>
+            <div class="nav-buttons" style="display: flex; justify-content: center; gap: 1.5rem; flex-wrap: wrap;">
+                <button class="nav-btn" onclick="showSection('chatSection')">Chat</button>
+                <button class="nav-btn" onclick="showSection('ocrSection')">OCR</button>
+                <button class="nav-btn" onclick="showSection('cartSection')">Cart</button>
+                <button class="nav-btn" onclick="showSection('paymentSection')">Payment</button>
+            </div>
+        </div>
+    </section>
+
+    <section id="chatSection" class="section">
+        <div class="chat-container">
+            <div class="chat-header">
+<h2>Virtual Shopping AI <button id="micBtn" class="btn" title="Speak" style="margin-left: 10px; font-weight: 700; font-size: 1rem; display: flex; justify-content: center; align-items: center;">mic</button></h2>
+                <button id="stopBtn" class="btn">Stop</button>
+            </div>
+            <div class="chat-body" id="chatBody">
+                <div class="message-container" id="messageContainer"></div>
+                <div id="loadingIndicator" style="display:none; text-align:center; padding: 1rem; color: #0a2342; font-weight: bold;">Loading...</div>
+            </div>
+            <div class="input-container">
+                <input type="text" id="messageInput" class="form-control" placeholder="Speak or type your shopping question..."/>
+                <button id="sendBtn" class="btn">Send</button>
+            </div>
+        </div>
+    </section>
+
+    <section id="searchSection" class="section">
+        <h3>Find Products</h3>
+        <div class="search-container">
+            <button id="searchMicBtn"><i class="fas fa-microphone"></i></button>
+            <input type="text" id="searchInput" class="form-control" placeholder="Speak or type product name..."/>
+            <button id="searchBtn" class="btn"><i class="fas fa-search"></i> Search</button>
+        </div>
+        <div id="searchResults"></div>
+    </section>
+
+    <section id="ocrSection" class="section">
+        <h3>OCR Scanner</h3>
+        <div class="ocr-container">
+            <div class="file-upload-wrapper" id="fileUploadWrapper">
+                <input type="file" id="ocrFile" accept="image/*"/>
+                <div class="file-upload-label">
+                    <i class="fas fa-camera"></i>
+                    <p>Click to upload an image</p>
+                    <span>Supports JPG, PNG, BMP (Max 5MB)</span>
+                </div>
+                <img id="imagePreview" alt="Preview"/>
+            </div>
+            <div class="ocr-progress" id="ocrProgress">
+                <div class="ocr-progress-bar" id="ocrProgressBar"></div>
+            </div>
+            <button id="doOCR" class="btn">Extract Text</button>
+            <div class="ocr-actions" id="ocrActions" style="display:none">
+                <button id="copyTextBtn" class="btn"><i class="fas fa-copy"></i> Copy</button>
+                <button id="clearTextBtn" class="btn"><i class="fas fa-trash"></i> Clear</button>
+            </div>
+            <pre id="ocrResult"></pre>
+        </div>
+    </section>
+
+    <section id="cartSection" class="section">
+        <h3>Your Shopping Cart</h3>
+        <div id="cartItems"></div>
+        <button id="checkoutBtn" class="btn">Proceed to Payment</button>
+    </section>
+
+    <section id="paymentSection" class="section">
+        <h3>Payment</h3>
+        <form id="paymentForm">
+            <input type="text" id="cardName" placeholder="Name on card" required/>
+            <input type="text" id="cardNumber" placeholder="Card number" required/>
+            <input type="text" id="expiry" placeholder="MM/YY" required/>
+            <input type="text" id="cvv" placeholder="CVV" required/>
+            <button type="submit" class="btn">Pay Now</button>
+        </form>
+        <div id="paymentMsg"></div>
+    </section>
+
+    <script>
+        const navItems = document.querySelectorAll("nav ul li");
+        
+        function activateSection(id) {
+            // This function is no longer used for navigation buttons on homepage
+        }
+        
+        function showSection(id) {
+            // Hide homepage
+            document.getElementById("landingSection").style.display = "none";
+            // Hide all other sections
+            document.querySelectorAll(".section").forEach(s => s.style.display = "none");
+            // Show selected section
+            document.getElementById(id).style.display = "block";
+            // Update nav active state
+            navItems.forEach(li => li.classList.toggle("active", li.dataset.target === id));
+            // Scroll to top
+            window.scrollTo(0, 0);
+        }
+        
+        // Navigation bar clicks
+        navItems.forEach(li => {
+            li.addEventListener("click", () => {
+                if (li.dataset.target === "landingSection") {
+                    // Show homepage, hide other sections
+                    document.getElementById("landingSection").style.display = "flex";
+                    document.querySelectorAll(".section").forEach(s => s.style.display = "none");
+                } else {
+                    showSection(li.dataset.target);
+                }
+                // Update nav active state
+                navItems.forEach(navLi => navLi.classList.toggle("active", navLi === li));
+                window.scrollTo(0, 0);
+            });
+        });
+    </script>
+    <script src="app.js"></script>
+</body>
+</html>

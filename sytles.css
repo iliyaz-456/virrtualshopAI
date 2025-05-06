@@ -1,0 +1,106 @@
+/* Add this to your existing CSS */
+  #micBtn {
+    background: #2a5c8d;
+    color: white;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.5rem;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+  
+  #micBtn:hover {
+    background: #1a4a7d;
+    transform: scale(1.05);
+  }
+  
+  #micBtn.listening {
+    background: #e74c3c;
+    animation: pulse 1.5s infinite;
+  }
+  
+  .chat-container .input-container {
+    padding: 1.5rem;
+  }
+  
+  .chat-container .input-container .form-control {
+    padding: 1rem 1.5rem;
+    font-size: 1.1rem;
+  }
+  
+  .chat-container .input-container #sendBtn {
+    padding: 0 1.5rem;
+    height: 50px;
+    font-size: 1.1rem;
+  }
+
+  /* Add this to your existing CSS */
+  .bot-message button {
+    background: #2a5c8d;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    font-size: 1.2rem;
+    cursor: pointer;
+    margin-top: 10px;
+    transition: all 0.3s ease;
+  }
+  
+  .bot-message button:hover {
+    background: #1a4a7d;
+    transform: scale(1.05);
+  }
+
+  /* New styles to make font color white for specified texts */
+  nav ul li {
+    color: white !important;
+  }
+
+  #searchSection h3,
+  #ocrSection h3,
+  #cartSection h3,
+  #paymentSection h3 {
+    color: white !important;
+  }
+
+  #searchBtn,
+  #checkoutBtn,
+  #paymentForm button {
+    color: white !important;
+  }
+
+  /* Optional: Adjust hover states for buttons to maintain contrast */
+  #searchBtn:hover,
+  #checkoutBtn:hover,
+  #paymentForm button:hover {
+    background-color: #062033 !important;
+    color: white !important;
+  }
+
+  /* Styles for home page nav buttons */
+  .nav-btn {
+    background-color: #0a2342;
+    color: #00bfff;
+    border: 2px solid #00bfff;
+    border-radius: 12px;
+    padding: 0.75rem 2rem;
+    font-size: 1.25rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0, 178, 255, 0.3);
+  }
+
+  .nav-btn:hover {
+    background-color: #00bfff;
+    color: #0a2342;
+    box-shadow: 0 6px 20px rgba(0, 178, 255, 0.6);
+    transform: scale(1.05);
+  }
